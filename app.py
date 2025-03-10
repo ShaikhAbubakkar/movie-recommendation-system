@@ -27,16 +27,33 @@ def recommend(movie):
 
     return recommended_movies, recommended_movies_poster
 
-import gdown
+def download_file_from_google_drive(file_id, destination):
+    base_url = "https://drive.google.com/uc?export=download&id="
+    session = requests.Session()
+
+    # Send request
+    response = session.get(base_url + file_id, stream=True)
+
+    # Handle potential Google Drive warning for large files
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            response = session.get(base_url + file_id + f"&confirm={value}", stream=True)
+            break
+
+    # Save the file
+    with open(destination, "wb") as file:
+        for chunk in response.iter_content(1024):
+            if chunk:
+                file.write(chunk)
+
 
 # Google Drive file IDs
 movie_dict_file_id = "1WHfe3TyaMQ-kRv0d2pn-Imo3lKqk0_si"
 similarity_file_id = "1P9pKIbWT3CVskdPSpu-aPkO1jqGskowh"
 
+download_file_from_google_drive(movie_dict_file_id, "movie_dict.pkl")
+download_file_from_google_drive(similarity_file_id, "similarity.pkl")
 
-# Download files from Google Drive
-gdown.download(f"https://drive.google.com/uc?id={movie_dict_file_id}", "movie_dict.pkl", quiet=False)
-gdown.download(f"https://drive.google.com/uc?id={similarity_file_id}", "similarity.pkl", quiet=False)
 
 # Load the files
 movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
