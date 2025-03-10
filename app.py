@@ -51,8 +51,17 @@ def download_file_from_google_drive(file_id, destination):
 movie_dict_file_id = "1WHfe3TyaMQ-kRv0d2pn-Imo3lKqk0_si"
 similarity_file_id = "1P9pKIbWT3CVskdPSpu-aPkO1jqGskowh"
 
-download_file_from_google_drive(movie_dict_file_id, "movie_dict.pkl")
-download_file_from_google_drive(similarity_file_id, "similarity.pkl")
+if download_file_from_google_drive(movie_dict_file_id, "movie_dict.pkl") and \
+        download_file_from_google_drive(similarity_file_id, "similarity.pkl"):
+
+    # Load the pickle files only if they were downloaded successfully
+    movies_dict = pickle.load(open("movie_dict.pkl", "rb"))
+    movies = pd.DataFrame(movies_dict)
+    similarity = pickle.load(open("similarity.pkl", "rb"))
+
+    print("✅ Files loaded successfully.")
+else:
+    print("❌ Download failed. Please check Google Drive permissions or file links.")
 
 
 # Load the files
